@@ -1,204 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Globetalk-Companinon---AI-Powered-Travel-Language-Assistant</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>GlobeTalk — AI Travel Language Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: {} } }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="min-h-screen px-4 py-8">
-        <!-- Header -->
-        <div class="container mx-auto text-center mb-10">
-            <h1 class="text-4xl font-bold text-indigo-700 mb-3">Globetalk-Companinon</h1>
-            <p class="text-xl text-gray-600">Learn essential travel phrases with AI assistance</p>
-        </div>
-        
-        <!-- Main Content -->
-        <div class="container mx-auto max-w-5xl">
-            <!-- Language Selection and Features -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <!-- Language Selection -->
-                <div class="md:col-span-1 bg-white p-6 rounded-lg shadow-md">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Select Language</h2>
-                    <div class="space-y-2">
-                        <button class="language-btn active w-full py-2 px-4 rounded-md bg-indigo-100 hover:bg-indigo-200 text-left" data-lang="Spanish">
-                            <i class="fas fa-globe-americas mr-2"></i> Spanish
-                        </button>
-                        <button class="language-btn w-full py-2 px-4 rounded-md bg-indigo-100 hover:bg-indigo-200 text-left" data-lang="French">
-                            <i class="fas fa-globe-europe mr-2"></i> French
-                        </button>
-                        <button class="language-btn w-full py-2 px-4 rounded-md bg-indigo-100 hover:bg-indigo-200 text-left" data-lang="Italian">
-                            <i class="fas fa-globe-europe mr-2"></i> Italian
-                        </button>
-                        <button class="language-btn w-full py-2 px-4 rounded-md bg-indigo-100 hover:bg-indigo-200 text-left" data-lang="German">
-                            <i class="fas fa-globe-europe mr-2"></i> German
-                        </button>
-                        <button class="language-btn w-full py-2 px-4 rounded-md bg-indigo-100 hover:bg-indigo-200 text-left" data-lang="Japanese">
-                            <i class="fas fa-globe-asia mr-2"></i> Japanese
-                        </button>
-                        <button class="language-btn w-full py-2 px-4 rounded-md bg-indigo-100 hover:bg-indigo-200 text-left" data-lang="Mandarin">
-                            <i class="fas fa-globe-asia mr-2"></i> Mandarin
-                        </button>
-                        <div class="relative mt-4">
-                            <input type="text" id="custom-language" placeholder="Or type another language..." class="w-full py-2 px-4 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <button id="add-language-btn" class="absolute right-2 top-2 text-indigo-600 hover:text-indigo-800">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Common Phrases and Categories -->
-                <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-800">Common Phrase Categories</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <div class="phrase-category p-3 text-center rounded-lg border border-gray-200" data-category="Greetings">
-                            <i class="fas fa-hand-wave text-xl text-indigo-600 mb-2"></i>
-                            <p>Greetings</p>
-                        </div>
-                        <div class="phrase-category p-3 text-center rounded-lg border border-gray-200" data-category="Emergencies">
-                            <i class="fas fa-first-aid text-xl text-red-600 mb-2"></i>
-                            <p>Emergencies</p>
-                        </div>
-                        <div class="phrase-category p-3 text-center rounded-lg border border-gray-200" data-category="Dining">
-                            <i class="fas fa-utensils text-xl text-amber-600 mb-2"></i>
-                            <p>Dining</p>
-                        </div>
-                        <div class="phrase-category p-3 text-center rounded-lg border border-gray-200" data-category="Transportation">
-                            <i class="fas fa-train text-xl text-green-600 mb-2"></i>
-                            <p>Transportation</p>
-                        </div>
-                        <div class="phrase-category p-3 text-center rounded-lg border border-gray-200" data-category="Accommodation">
-                            <i class="fas fa-hotel text-xl text-blue-600 mb-2"></i>
-                            <p>Accommodation</p>
-                        </div>
-                        <div class="phrase-category p-3 text-center rounded-lg border border-gray-200" data-category="Shopping">
-                            <i class="fas fa-shopping-bag text-xl text-pink-600 mb-2"></i>
-                            <p>Shopping</p>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <h3 class="font-medium text-gray-700 mb-2">Quick Phrases</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <button class="quick-phrase bg-indigo-50 hover:bg-indigo-100 text-sm py-1 px-3 rounded-full">Hello, how are you?</button>
-                            <button class="quick-phrase bg-indigo-50 hover:bg-indigo-100 text-sm py-1 px-3 rounded-full">Where is the bathroom?</button>
-                            <button class="quick-phrase bg-indigo-50 hover:bg-indigo-100 text-sm py-1 px-3 rounded-full">How much does this cost?</button>
-                            <button class="quick-phrase bg-indigo-50 hover:bg-indigo-100 text-sm py-1 px-3 rounded-full">I need help</button>
-                            <button class="quick-phrase bg-indigo-50 hover:bg-indigo-100 text-sm py-1 px-3 rounded-full">Thank you</button>
-                        </div>
-                    </div>
+
+<body class="min-h-screen transition-colors duration-300">
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="relative z-10 px-4 py-8 min-h-screen">
+
+        <header class="container mx-auto max-w-6xl flex items-center justify-between mb-10">
+            <div class="flex items-center gap-3">
+                <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                <div>
+                    <h1 class="site-title">GlobeTalk</h1>
+                    <p class="site-subtitle">AI Travel Language Companion</p>
                 </div>
             </div>
-            
-            <!-- Chat Interface -->
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <!-- Chat Header -->
-                <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center">
-                    <div class="flex items-center">
-                        <i class="fas fa-robot mr-2"></i>
-                        <h2 class="font-semibold">Travel Language Assistant</h2>
+            <div class="flex items-center gap-2">
+                <button id="theme-toggle" class="icon-btn" aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+                <button id="settings-btn" class="icon-btn accent" aria-label="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="container mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
+
+            <aside class="lg:col-span-3 flex flex-col gap-5">
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-language mr-2 text-accent"></i>Language</h2>
+                    <div class="space-y-1.5" id="language-list">
+                        <button class="lang-btn active" data-lang="Spanish">🇪🇸 Spanish</button>
+                        <button class="lang-btn" data-lang="French">🇫🇷 French</button>
+                        <button class="lang-btn" data-lang="Italian">🇮🇹 Italian</button>
+                        <button class="lang-btn" data-lang="German">🇩🇪 German</button>
+                        <button class="lang-btn" data-lang="Japanese">🇯🇵 Japanese</button>
+                        <button class="lang-btn" data-lang="Mandarin">🇨🇳 Mandarin</button>
+                        <button class="lang-btn" data-lang="Arabic">🇸🇦 Arabic</button>
+                        <button class="lang-btn" data-lang="Portuguese">🇧🇷 Portuguese</button>
                     </div>
-                    <div>
-                        <span id="selected-language" class="bg-white text-indigo-600 text-sm py-1 px-3 rounded-full">Spanish</span>
+                    <div class="relative mt-3">
+                        <input type="text" id="custom-language" placeholder="Add a language…"
+                            class="custom-input pr-10">
+                        <button id="add-language-btn"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-accent hover:opacity-70 transition-opacity">
+                            <i class="fas fa-plus-circle text-lg"></i>
+                        </button>
                     </div>
                 </div>
-                
-                <!-- Chat Messages -->
-                <div class="chat-container p-6">
-                    <div id="chat-messages" class="space-y-4">
-                        <!-- Initial bot message -->
-                        <div class="bot-message p-4 max-w-[80%] zoom-in">
-                            <div class="flex items-start">
-                                <div class="rounded-full bg-indigo-100 p-2 mr-3">
-                                    <i class="fas fa-robot text-indigo-600"></i>
-                                </div>
-                                <div>
-                                    <p class="text-gray-700">👋 Hola! I'm your travel language assistant. I can help you learn essential Spanish phrases for your travels. Ask me how to say something or select a category above to get started!</p>
-                                </div>
+
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-tags mr-2 text-accent"></i>Categories</h2>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="cat-btn" data-category="Greetings"><i
+                                class="fas fa-handshake"></i><span>Greetings</span></button>
+                        <button class="cat-btn" data-category="Emergencies"><i
+                                class="fas fa-exclamation-triangle text-red-400"></i><span>Emergency</span></button>
+                        <button class="cat-btn" data-category="Dining"><i
+                                class="fas fa-utensils text-amber-500"></i><span>Dining</span></button>
+                        <button class="cat-btn" data-category="Transportation"><i
+                                class="fas fa-train text-green-500"></i><span>Transport</span></button>
+                        <button class="cat-btn" data-category="Accommodation"><i
+                                class="fas fa-hotel text-blue-500"></i><span>Hotel</span></button>
+                        <button class="cat-btn" data-category="Shopping"><i
+                                class="fas fa-shopping-bag text-pink-500"></i><span>Shopping</span></button>
+                        <button class="cat-btn" data-category="Directions"><i
+                                class="fas fa-map-signs text-indigo-500"></i><span>Directions</span></button>
+                        <button class="cat-btn" data-category="Numbers"><i
+                                class="fas fa-calculator text-teal-500"></i><span>Numbers</span></button>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="lg:col-span-9 flex flex-col">
+                <div class="chat-card flex flex-col" style="min-height:580px">
+
+                    <div class="chat-header">
+                        <div class="flex items-center gap-3">
+                            <div class="bot-avatar-sm"><i class="fas fa-robot"></i></div>
+                            <div>
+                                <p class="font-semibold text-white">Travel Assistant</p>
+                                <p class="text-xs text-indigo-200 flex items-center gap-1">
+                                    <span
+                                        class="inline-block w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                                    Powered by Gemini AI
+                                </p>
+                            </div>
+                        </div>
+                        <span id="selected-language" class="lang-badge">Spanish</span>
+                    </div>
+
+                    <div class="quick-phrase-bar">
+                        <button class="quick-phrase">👋 Hello, how are you?</button>
+                        <button class="quick-phrase">🚻 Where is the bathroom?</button>
+                        <button class="quick-phrase">💰 How much does this cost?</button>
+                        <button class="quick-phrase">🆘 I need help</button>
+                        <button class="quick-phrase">🙏 Thank you</button>
+                        <button class="quick-phrase">🍽️ I'd like to order</button>
+                        <button class="quick-phrase">🏨 I have a reservation</button>
+                    </div>
+
+                    <div class="chat-messages-wrap flex-1 overflow-y-auto p-5" id="chat-messages"></div>
+
+                    <div class="chat-input-bar">
+                        <div class="input-row">
+                            <input type="text" id="user-input" placeholder="Ask for a phrase or translation…"
+                                class="chat-input flex-1">
+                            <button id="mic-button" class="mic-btn" title="Voice input"><i
+                                    class="fas fa-microphone"></i></button>
+                            <button id="send-button" class="send-btn"><i
+                                    class="fas fa-paper-plane mr-1"></i>Send</button>
+                        </div>
+                        <div class="input-actions">
+                            <button id="clear-chat" class="action-link"><i class="fas fa-trash-alt mr-1"></i>Clear
+                                chat</button>
+                            <div class="flex items-center gap-3">
+                                <button id="toggle-voice" class="action-link"><i
+                                        class="fas fa-volume-up mr-1"></i>Voice: On</button>
+                                <button id="save-phrases" class="action-link"><i class="fas fa-bookmark mr-1"></i>Saved
+                                    phrases</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Chat Input -->
-                <div class="border-t px-6 py-3 bg-gray-50">
-                    <div class="flex items-center">
-                        <input type="text" id="user-input" placeholder="Ask for a phrase or translation..." class="flex-1 py-2 px-4 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <button id="send-button" class="bg-indigo-600 text-white py-2 px-4 rounded-r-md hover:bg-indigo-700 transition duration-200">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+            </section>
+        </main>
+
+        <section class="container mx-auto max-w-6xl mb-12">
+            <h2 class="section-heading">Why GlobeTalk?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+                <div class="feature-card">
+                    <div class="feature-icon bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300">
+                        <i class="fas fa-language text-xl"></i>
                     </div>
-                    <div class="flex justify-between mt-2 text-sm text-gray-500">
-                        <div>
-                            <button id="clear-chat" class="hover:text-indigo-600 transition duration-200">
-                                <i class="fas fa-trash-alt mr-1"></i> Clear chat
-                            </button>
-                        </div>
-                        <div>
-                            <button id="toggle-voice" class="hover:text-indigo-600 transition duration-200 mr-3">
-                                <i class="fas fa-volume-up mr-1"></i> Voice: On
-                            </button>
-                            <button id="save-phrases" class="hover:text-indigo-600 transition duration-200">
-                                <i class="fas fa-bookmark mr-1"></i> Saved phrases
-                            </button>
-                        </div>
+                    <h3 class="feature-title">50+ Languages</h3>
+                    <p class="feature-desc">Essential travel phrases in virtually any language, instantly available.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300">
+                        <i class="fas fa-volume-up text-xl"></i>
                     </div>
+                    <h3 class="feature-title">Pronunciation Guide</h3>
+                    <p class="feature-desc">Hear correct pronunciation to help you speak like a local, every time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-300">
+                        <i class="fas fa-brain text-xl"></i>
+                    </div>
+                    <h3 class="feature-title">Gemini AI Brain</h3>
+                    <p class="feature-desc">Accurate, culturally-aware translations powered by Google's Gemini AI.</p>
                 </div>
             </div>
-            
-            <!-- Features Section -->
-            <div class="mt-12 mb-8">
-                <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Features</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="feature-card bg-white p-6 rounded-lg shadow-md text-center">
-                        <div class="rounded-full bg-indigo-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-language text-2xl text-indigo-600"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Multiple Languages</h3>
-                        <p class="text-gray-600">Learn essential phrases in over 50 different languages for your travels</p>
-                    </div>
-                    
-                    <div class="feature-card bg-white p-6 rounded-lg shadow-md text-center">
-                        <div class="rounded-full bg-indigo-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-volume-up text-2xl text-indigo-600"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Pronunciation Guide</h3>
-                        <p class="text-gray-600">Hear correct pronunciations to help you speak like a local</p>
-                    </div>
-                    
-                    <div class="feature-card bg-white p-6 rounded-lg shadow-md text-center">
-                        <div class="rounded-full bg-indigo-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-brain text-2xl text-indigo-600"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">AI-Powered</h3>
-                        <p class="text-gray-600">Leveraging Gemini AI to provide accurate translations and cultural context</p>
-                    </div>
+        </section>
+
+        <footer class="container mx-auto max-w-6xl text-center text-sm footer-text pb-4">
+            <p>GlobeTalk Companion &copy; 2025 &mdash; Final Year Project &nbsp;|&nbsp; Powered by Gemini AI</p>
+        </footer>
+    </div>
+
+    <!-- Saved Phrases Modal -->
+    <div id="saved-phrases-modal" class="modal-backdrop hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-bookmark mr-2 text-accent"></i>Saved Phrases</h3>
+                <div class="flex gap-2">
+                    <button id="export-phrases-btn" class="icon-btn" title="Export CSV"><i
+                            class="fas fa-download"></i></button>
+                    <button id="close-modal" class="icon-btn"><i class="fas fa-times"></i></button>
                 </div>
             </div>
-            
-            <!-- Saved Phrases Modal -->
-            <div id="saved-phrases-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                <div class="bg-white rounded-lg w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold">Saved Phrases</h3>
-                        <button id="close-modal" class="text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div id="saved-phrases-list" class="space-y-3">
-                        <!-- Saved phrases will be added here -->
-                        <p class="text-gray-500 text-center py-4">No saved phrases yet</p>
-                    </div>
-                </div>
+            <div id="saved-phrases-list" class="space-y-3 overflow-y-auto flex-1 max-h-80 pr-1">
+                <p class="text-center py-6 empty-msg">No saved phrases yet</p>
             </div>
         </div>
     </div>
 
-<script src="script.js"></script>    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-backdrop hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-cog mr-2 text-accent"></i>Settings</h3>
+                <button id="close-settings" class="icon-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4 mt-2">
+                <div>
+                    <label class="field-label">Gemini API Key</label>
+                    <input type="password" id="api-key-input" placeholder="Enter your Gemini API key…"
+                        class="custom-input">
+                    <p class="field-hint">Stored locally in your browser. Get a free key at <a
+                            href="https://aistudio.google.com/apikey" target="_blank"
+                            class="text-accent underline">Google AI Studio</a>.</p>
+                </div>
+                <button id="save-settings-btn" class="save-btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+
+    <script src="script.js"></script>
 </body>
+
 </html>
