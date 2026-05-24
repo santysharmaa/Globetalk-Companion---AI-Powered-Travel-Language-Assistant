@@ -17,22 +17,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const customLanguageInput = document.getElementById('custom-language');
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
-    const settingsBtn = document.getElementById('settings-btn');
-    const settingsModal = document.getElementById('settings-modal');
-    const closeSettings = document.getElementById('close-settings');
-    const apiKeyInput = document.getElementById('api-key-input');
-    const saveSettingsBtn = document.getElementById('save-settings-btn');
     const exportPhrasesBtn = document.getElementById('export-phrases-btn');
     const micButton = document.getElementById('mic-button');
     const toastContainer = document.getElementById('toast-container');
 
-    let GEMINI_API_KEY = localStorage.getItem('geminiApiKey') || '';
     let currentLanguage = 'Spanish';
     let voiceEnabled = true;
     let savedPhrases = JSON.parse(localStorage.getItem('savedPhrases')) || [];
     let isDarkMode = localStorage.getItem('darkMode') === 'true';
     let isListening = false;
     let recognition = null;
+    let activeUtterance = null;
+    
+    let translatorInstance = null;
+    let currentTranslatorLang = null;
+
+    const categoryPhrases = {
+        'Greetings': ['Hello', 'Good morning', 'How are you?', 'Nice to meet you', 'Goodbye'],
+        'Emergencies': ['Help me!', 'Call the police', 'I need a doctor', 'Where is the hospital?', 'I lost my passport'],
+        'Dining': ['A table for two, please', 'Can I see the menu?', 'I would like to order', 'Water, please', 'The bill, please'],
+        'Transportation': ['Where is the train station?', 'I would like a ticket', 'How much is the fare?', 'Take me to the airport', 'Stop here, please'],
+        'Accommodation': ['I have a reservation', 'Do you have any free rooms?', 'Is breakfast included?', 'My room key, please', 'I would like to check out'],
+        'Shopping': ['How much does this cost?', 'Do you have this in a different size?', 'I would like to buy this', 'Can I pay by card?', 'Just looking, thank you'],
+        'Directions': ['Where is the bathroom?', 'How do I get to the city center?', 'Is it far?', 'Go straight', 'Turn left', 'Turn right'],
+        'Numbers': ['One, two, three', 'Four, five, six', 'Seven, eight, nine', 'Ten', 'Hundred']
+    };
 
     if (isDarkMode) {
         document.documentElement.classList.add('dark');
@@ -41,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     showWelcome();
     updateSavedPhrasesList();
+    initTranslator(currentLanguage);
 
     // Live getter — includes dynamically added buttons (bug fix)
     function getAllLangButtons() {
@@ -106,6 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     toggleVoiceButton.addEventListener('click', function () {
         voiceEnabled = !voiceEnabled;
+        if (!voiceEnabled) stopSpeaking(false);
         this.innerHTML = voiceEnabled
             ? '<i class="fas fa-volume-up mr-1"></i>Voice: On'
             : '<i class="fas fa-volume-mute mr-1"></i>Voice: Off';
@@ -128,22 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     });
 
-    settingsBtn.addEventListener('click', () => {
-        apiKeyInput.value = localStorage.getItem('geminiApiKey') || '';
-        settingsModal.classList.remove('hidden');
-    });
-    closeSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
-    settingsModal.addEventListener('click', e => {
-        if (e.target === settingsModal) settingsModal.classList.add('hidden');
-    });
 
-    saveSettingsBtn.addEventListener('click', () => {
-        const newKey = apiKeyInput.value.trim();
-        if (newKey) { localStorage.setItem('geminiApiKey', newKey); GEMINI_API_KEY = newKey; }
-        else { localStorage.removeItem('geminiApiKey'); GEMINI_API_KEY = ''; }
-        settingsModal.classList.add('hidden');
-        showToast('Settings saved!', 'success');
-    });
 
     exportPhrasesBtn.addEventListener('click', () => {
         if (savedPhrases.length === 0) { showToast('No phrases to export', 'info'); return; }
@@ -191,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedLanguageSpan.textContent = language;
         chatMessages.innerHTML = '';
         showWelcome();
+        initTranslator(language);
     }
 
     function showWelcome() {
@@ -209,28 +206,34 @@ document.addEventListener('DOMContentLoaded', function () {
         addUserMessage(message);
         userInput.value = '';
         const loadingId = addLoadingIndicator();
-        callGeminiAPI(message, currentLanguage).then(resp => {
+        callLocalTranslationAPI(message).then(resp => {
             removeLoadingIndicator(loadingId);
             addBotMessage(resp);
         }).catch(() => {
             removeLoadingIndicator(loadingId);
-            addBotMessage('Sorry, I ran into an error. Please check your connection and try again.');
+            addBotMessage('Sorry, I ran into an error translating locally. Please make sure the Chrome Translation API is enabled.');
         });
     }
 
-    function askForPhraseCategory(category) {
+    async function askForPhraseCategory(category) {
         addUserMessage(`Show me common ${category} phrases in ${currentLanguage}`);
+        const phrases = categoryPhrases[category] || [];
+        if (phrases.length === 0) return;
+        
         const loadingId = addLoadingIndicator();
-        callGeminiAPI(
-            `Show me 5 essential ${category} phrases for travelers in ${currentLanguage}. For each one provide: the phrase in ${currentLanguage}, a simple phonetic pronunciation, and the English translation. Format clearly with numbers.`,
-            currentLanguage
-        ).then(resp => {
+        try {
+            let resultHtml = `**Common ${category} Phrases:**\n\n`;
+            for (let i = 0; i < phrases.length; i++) {
+                const englishPhrase = phrases[i];
+                const translated = await callLocalTranslationAPI(englishPhrase);
+                resultHtml += `${i + 1}. **${englishPhrase}**\n   &rarr; ${translated}\n\n`;
+            }
             removeLoadingIndicator(loadingId);
-            addBotMessage(resp);
-        }).catch(() => {
+            addBotMessage(resultHtml);
+        } catch(e) {
             removeLoadingIndicator(loadingId);
-            addBotMessage('Sorry, I ran into an error. Please try again.');
-        });
+            addBotMessage('Sorry, I ran into an error translating locally.');
+        }
     }
 
     function addUserMessage(text) {
@@ -257,6 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="bubble-actions">
                 <button class="bubble-action-btn save-btn-msg"><i class="fas fa-bookmark"></i> Save</button>
                 <button class="bubble-action-btn speak-btn-msg"><i class="fas fa-volume-up"></i> Speak</button>
+                <button class="bubble-action-btn stop-btn-msg"><i class="fas fa-volume-mute"></i> Stop</button>
                 <button class="bubble-action-btn copy-btn-msg"><i class="fas fa-copy"></i> Copy</button>
             </div>`;
 
@@ -283,6 +287,9 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             wrap.querySelector('.speak-btn-msg').addEventListener('click', function () {
                 speakText(wrap.querySelector('.bot-content').textContent);
+            });
+            wrap.querySelector('.stop-btn-msg').addEventListener('click', function () {
+                stopSpeaking();
             });
             wrap.querySelector('.copy-btn-msg').addEventListener('click', function () {
                 navigator.clipboard.writeText(wrap.querySelector('.bot-content').textContent)
@@ -346,9 +353,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 <div class="flex gap-1">
                     <button class="icon-btn speak-s" title="Speak"><i class="fas fa-volume-up text-xs"></i></button>
+                    <button class="icon-btn stop-s" title="Stop pronunciation"><i class="fas fa-volume-mute text-xs"></i></button>
                     <button class="icon-btn del-s" title="Delete"><i class="fas fa-trash text-xs"></i></button>
                 </div>`;
             item.querySelector('.speak-s').addEventListener('click', () => speakText(phrase.text));
+            item.querySelector('.stop-s').addEventListener('click', () => stopSpeaking());
             item.querySelector('.del-s').addEventListener('click', () => {
                 savedPhrases = savedPhrases.filter(p => p.id !== phrase.id);
                 localStorage.setItem('savedPhrases', JSON.stringify(savedPhrases));
@@ -360,12 +369,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function speakText(text) {
         if (!('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
+        stopSpeaking(false);
         const utt = new SpeechSynthesisUtterance(text);
+        activeUtterance = utt;
+        utt.onend = () => {
+            if (activeUtterance === utt) activeUtterance = null;
+        };
+        utt.onerror = () => {
+            if (activeUtterance === utt) activeUtterance = null;
+        };
         const voices = speechSynthesis.getVoices();
         const voice = voices.find(v => v.lang.startsWith(getLanguageCode(currentLanguage)));
         if (voice) utt.voice = voice;
         speechSynthesis.speak(utt);
+    }
+
+    function stopSpeaking(showNotification = true) {
+        if (!('speechSynthesis' in window)) return;
+        if (activeUtterance || window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+            window.speechSynthesis.cancel();
+            activeUtterance = null;
+            if (showNotification) showToast('Pronunciation stopped', 'info');
+        }
     }
 
     function getLanguageCode(language) {
@@ -380,46 +405,90 @@ document.addEventListener('DOMContentLoaded', function () {
         speechSynthesis.getVoices();
     }
 
-    async function callGeminiAPI(message, language) {
-        if (!GEMINI_API_KEY) {
-            return `⚠️ **No API key configured.**\n\nClick the ⚙️ **Settings** button in the top-right corner to enter your Gemini API key.\nGet a free key at [Google AI Studio](https://aistudio.google.com/apikey).`;
+    function updateAiStatus(text, statusType) {
+        const aiStatusText = document.getElementById('ai-status-text');
+        const aiStatusDot = document.getElementById('ai-status-dot');
+        if(!aiStatusText || !aiStatusDot) return;
+        
+        aiStatusText.textContent = text;
+        aiStatusDot.className = 'inline-block w-1.5 h-1.5 rounded-full';
+        
+        if(statusType === 'success') {
+            aiStatusDot.classList.add('bg-green-400');
+        } else if(statusType === 'error') {
+            aiStatusDot.classList.add('bg-red-500');
+        } else if(statusType === 'download') {
+            aiStatusDot.classList.add('bg-yellow-400', 'animate-pulse');
+        } else {
+            aiStatusDot.classList.add('bg-indigo-400', 'animate-pulse');
+        }
+    }
+
+    async function initTranslator(targetLangName) {
+        const langCode = getLanguageCode(targetLangName);
+        const TranslatorAPI = self.Translator || (self.ai && self.ai.translator) || self.translation;
+        
+        if (!TranslatorAPI) {
+            updateAiStatus('Chrome API Not Supported', 'error');
+            return false;
         }
 
-        const prompt = `You are GlobeTalk, a friendly and expert travel language assistant.
-The user wants to learn phrases in ${language}.
-Provide accurate translations, simple phonetic pronunciation guides, and brief cultural tips when relevant.
-Keep responses practical, well-formatted with markdown, and focused on travel scenarios.
-
-User: ${message}`;
-
         try {
-            const resp = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                }
-            );
-
-            if (!resp.ok) {
-                const errData = await resp.json().catch(() => ({}));
-                console.error('Gemini HTTP error:', resp.status, errData);
-                if (resp.status === 400 || resp.status === 403) {
-                    return `⚠️ **Invalid API key.** Go to ⚙️ Settings and enter a valid key from [Google AI Studio](https://aistudio.google.com/apikey).`;
-                }
-                return `Sorry, I hit an error (HTTP ${resp.status}). Please try again.`;
+            updateAiStatus('Checking local model...', 'info');
+            let canTranslate = 'readily';
+            
+            if (TranslatorAPI.capabilities) {
+                const caps = await TranslatorAPI.capabilities();
+                canTranslate = caps.languagePairAvailable ? caps.languagePairAvailable('en', langCode) : caps.languageAvailable('en', langCode);
+            } else if (TranslatorAPI.availability) {
+                canTranslate = await TranslatorAPI.availability();
             }
 
-            const data = await resp.json();
-            if (data.error) return 'API error: ' + (data.error.message || 'Unknown');
-            if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-                return data.candidates[0].content.parts[0].text;
+            if (canTranslate === 'no') {
+                updateAiStatus(`Language not supported locally`, 'error');
+                return false;
             }
-            return "I couldn't generate a response. Please rephrase your question.";
-        } catch (err) {
-            console.error('Gemini call failed:', err);
-            return "Connection error. Please check your internet and try again.";
+
+            if (canTranslate !== 'readily') {
+                updateAiStatus('Downloading model...', 'download');
+            }
+
+            if (translatorInstance && currentTranslatorLang !== langCode) {
+                if (translatorInstance.destroy) translatorInstance.destroy();
+                translatorInstance = null;
+            }
+
+            if (!translatorInstance) {
+                translatorInstance = await TranslatorAPI.create({
+                    sourceLanguage: 'en',
+                    targetLanguage: langCode
+                });
+                currentTranslatorLang = langCode;
+            }
+
+            updateAiStatus('Chrome Local AI Ready', 'success');
+            return true;
+        } catch (e) {
+            console.error('Translation init error', e);
+            updateAiStatus('Failed to load AI', 'error');
+            return false;
+        }
+    }
+
+    async function callLocalTranslationAPI(text) {
+        if(!translatorInstance) {
+            const initialized = await initTranslator(currentLanguage);
+            if(!initialized) {
+                return `⚠️ **Chrome Local AI Not Supported or Failed to Load.**\n\nEnsure you are using Google Chrome with the \`#translation-api\` flag enabled in \`chrome://flags\`.`;
+            }
+        }
+        
+        try {
+            const translatedText = await translatorInstance.translate(text);
+            return translatedText;
+        } catch(e) {
+            console.error('Translation failed', e);
+            return "Local translation failed. Please try again.";
         }
     }
 

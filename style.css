@@ -7,10 +7,10 @@
     --accent-light: #ede9fe;
     --accent-dark: #4338ca;
     --bg: #f4f5fb;
-    --card-bg: #ffffff;
+    --card-bg: rgba(255, 255, 255, 0.75);
     --text: #1a1a2e;
     --muted: #6b7280;
-    --border: #e5e7eb;
+    --border: rgba(229, 231, 235, 0.5);
     --chat-header: linear-gradient(135deg, #5b4ff5 0%, #7c3aed 100%);
     --bot-bubble: #f1f0fe;
     --user-bubble: #5b4ff5;
@@ -22,10 +22,10 @@
 
 .dark {
     --bg: #0e0e1a;
-    --card-bg: #16162a;
+    --card-bg: rgba(22, 22, 42, 0.75);
     --text: #e8e8f0;
     --muted: #9ca3af;
-    --border: #2a2a45;
+    --border: rgba(42, 42, 69, 0.5);
     --bot-bubble: #1e1e3a;
     --user-bubble: #4f46e5;
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
@@ -168,6 +168,8 @@ body {
     border-radius: var(--radius);
     padding: 1.25rem;
     box-shadow: var(--shadow-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transition: background-color 0.3s, border-color 0.3s;
 }
 
@@ -244,6 +246,8 @@ body {
     border: 1.5px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -514,6 +518,8 @@ body {
     border-top: 1.5px solid var(--border);
     padding: 0.85rem 1.1rem;
     background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
 .input-row {
@@ -674,6 +680,8 @@ body {
     padding: 1.5rem;
     text-align: center;
     box-shadow: var(--shadow-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     transition: all 0.3s;
 }
 
